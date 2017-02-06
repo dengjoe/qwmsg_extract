@@ -64,11 +64,11 @@ def output_msg(fout, msg, append=None):
 	content = re.sub(r'\[表情\]', "", msg.content) 
 	try:
 		if append:
-			fout.write(stime+ msg.name + "：" + content + append)
+			fout.write(stime + msg.name + "：" + content + append)
 		else:
 			fout.write(stime + msg.name + "：" + content)
 	except:
-		print("err content:", content)
+		print("err content:", stime + msg.name + "：" + content)
 
 def log_errmsg_at_name(msg, name):
 	""" 记录姓名找不到的错误日志文件 """
