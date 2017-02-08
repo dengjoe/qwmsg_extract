@@ -52,7 +52,7 @@ class MsgItem(object):
 	def print(self):
 		print(self.name, self.uid, "\t", self.time, "(",  self.timestamp,"):\n", self.content)
 
-	def output_txt(fout, append=None):
+	def output_txt(self, fout, append=None):
 		#过滤掉表情
 		content = re.sub(r'\[表情\]', "", self.content) 
 		try:
