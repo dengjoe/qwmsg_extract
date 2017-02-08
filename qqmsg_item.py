@@ -52,6 +52,18 @@ class MsgItem(object):
 	def print(self):
 		print(self.name, self.uid, "\t", self.time, "(",  self.timestamp,"):\n", self.content)
 
+	def output_txt(fout, append=None):
+		#过滤掉表情
+		content = re.sub(r'\[表情\]', "", self.content) 
+		try:
+			if append:
+				fout.write(self.name + "：" + content + append)
+			else:
+				fout.write(self.name + "：" + content)
+		except:
+			print("err content:", "["+ self.time +"]" + self.name + "：" + content)
+			pass
+
 
 def log_err_line(logname, strline):
 	""" 记录一条信息到日志文件 """

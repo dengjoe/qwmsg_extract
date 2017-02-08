@@ -48,11 +48,13 @@ def output_important_msg(db, fout, msg):
 
 			msg_last = db.get_last_one_by_name(name)
 			if msg_last:
-				output_msg(fout, msg_last)
+				msg_last.output_txt(fout)
+				#output_msg(fout, msg_last)
 			else:
 				log_errmsg_at_name(msg, name)
 
-		output_msg(fout, msg, "\n")
+		#output_msg(fout, msg, "\n")
+		msg.output_txt(fout, "\n")
 		global_data.output_msg_count += 1
 
 
