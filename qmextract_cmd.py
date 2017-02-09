@@ -48,7 +48,7 @@ def output_important_msg(db, fout, outype, msg):
 	last_time = msg.time[0:10]
 
 	if msg.name in important_names:
-		m = re.match(r'(@\d{0,4}[\+\s]?\w{2,10}[\+\s]{0,3}\w{0,6})\s(.+)', msg.content)
+		m = re.match(r'(@\d{0,4}[\+\-\s]?\w{1,10}[\+\-\s]{0,3}\w{0,6})\s(.+)', msg.content)
 		if m:
 			# 是含有应答对象的内容，提取出对象的姓名
 			name = m.group(1).strip()[1:]
