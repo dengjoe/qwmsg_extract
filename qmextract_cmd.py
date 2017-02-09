@@ -87,7 +87,7 @@ def output_msg(doc, outype, msg, append=None):
 	if iname.find("刘明慧") >= 0:
 		iname = "刘老师"
 
-	strout = iname + "：" + msg.content
+	strout = iname + "：" + msg.content + "\n"
 	if append:
 		strout = strout + append
 
