@@ -47,22 +47,14 @@ class MsgItem(object):
 		# print(ti, " :", timeArray, ":", self.timestamp)
 
 	def add_content(self, msg):
-		self.content += msg + '\n'
+		#换行，并过滤掉表情字符串
+		if self.content != "":
+			self.content += "\n"
+		self.content += re.sub(r'\[表情\]', "", msg)
 
-	def print(self):
+	def output_std(self):
 		print(self.name, self.uid, "\t", self.time, "(",  self.timestamp,"):\n", self.content)
 
-	def output_txt(self, fout, append=None):
-		#过滤掉表情
-		content = re.sub(r'\[表情\]', "", self.content) 
-		try:
-			if append:
-				fout.write(self.name + "：" + content + append)
-			else:
-				fout.write(self.name + "：" + content)
-		except:
-			print("err content:", "["+ self.time +"]" + self.name + "：" + content)
-			pass
 
 
 def log_err_line(logname, strline):
@@ -126,7 +118,7 @@ def test_parse_msg():
 	print("\ntest_parse_msg --------------")
 	msgs = parse_msg(str1)
 	for m in msgs:
-		m.print()
+		m.output_std()
 
 
 def test_parse_qqinfo(filename):

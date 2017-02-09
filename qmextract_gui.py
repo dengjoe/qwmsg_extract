@@ -73,7 +73,8 @@ class WinInput(object):
 	def run_qmex(self):
 		global_data.init_global_data()
 		# 根据dout生成输出文件名fout，再运行提取。
-		foutname = self.qqdout + "\\" + global_data.runtime.strftime('%Y-%m%d_%H%M%S') + ".txt"
+		foutname = self.qqdout + "\\" + global_data.runtime.strftime('%Y-%m%d_%H%M%S') + self.ini.outputype
+		print(foutname)
 
 		qmextract_cmd.qqmsg_extract(qmextract_cmd.filename_db, foutname, self.qqfin)
 		self.txt.insert(0.0, qmextract_cmd.extract_result())

@@ -17,6 +17,13 @@ import qqmsg_item
 import qmextract_ini
 import global_data
 
+from docx import Document
+from docx.shared import Pt
+from docx.shared import RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+
+
 # 配置文件的部分内容
 important_names = ["刘明慧", "山长 清一"]
 #section_wx = "wx_config"
@@ -31,12 +38,12 @@ errname_filename = "error_name.log"
 # 将问题和应答存入输出文件。如果找不到应答，信息全部存入错误日志
 last_time = ""
 
-def output_important_msg(db, fout, msg):
+def output_important_msg(db, fout, outype, msg):
 	""" 提取重要的人的应答消息，并输出到文件 """
 	global last_time
 	if msg.time[0:10] > last_time:
 		print("last:",last_time, "now:", msg.time[0:10])
-		fout.write(msg.time[0:10] + "\n\n")
+		output_msg_date(fout, outype, msg)
 
 	last_time = msg.time[0:10]
 
@@ -48,29 +55,62 @@ def output_important_msg(db, fout, msg):
 
 			msg_last = db.get_last_one_by_name(name)
 			if msg_last:
-				msg_last.output_txt(fout)
-				#output_msg(fout, msg_last)
+				output_msg(fout, outype, msg_last)
 			else:
 				log_errmsg_at_name(msg, name)
 
-		#output_msg(fout, msg, "\n")
-		msg.output_txt(fout, "\n")
+		output_msg(fout, outype, msg, "\n")
 		global_data.output_msg_count += 1
 
+def docx_add_style_run(p, text, fontsize, isbold, fontname=None):
+		run = p.add_run(text)
+		run.font.size = Pt(fontsize)
+		run.font.bold = isbold
+		if fontname:
+			run.font.name = fontname
+			run._element.rPr.rFonts.set(qn('w:eastAsia'), run.font.name)
+		return run
+
+def output_msg_date(doc, outype, msg):
+	if outype == 0:
+		print(msg.time[0:10] + "\n\n")
+	elif outype == 1:
+		doc.write(msg.time[0:10] + "\n\n")
+	elif outype == 2:
+		p = doc.add_heading('', level=1)
+		docx_add_style_run(p, msg.time[0:10], 12, True, "宋体")
+		doc.add_paragraph('')
 
 
-def output_msg(fout, msg, append=None):
-	# stime = "["+ msg.time +"]"
-	stime = ""
-	#过滤掉表情
-	content = re.sub(r'\[表情\]', "", msg.content) 
+def output_msg(doc, outype, msg, append=None):
+	iname = msg.name
+	if iname.find("刘明慧") >= 0:
+		iname = "刘老师"
+
+	strout = iname + "：" + msg.content
+	if append:
+		strout = strout + append
+
 	try:
-		if append:
-			fout.write(stime + msg.name + "：" + content + append)
-		else:
-			fout.write(stime + msg.name + "：" + content)
+		if outype == 0:
+			print(strout)
+		elif outype == 1:
+			doc.write(strout)
+		elif outype == 2:
+			p = doc.add_paragraph('')
+			run = docx_add_style_run(p, iname+ "：", 12, True, "宋体")
+			if append:
+				run.font.color.rgb = RGBColor(0xff, 0x00, 0x00)
+			docx_add_style_run(p, msg.content, 12, False, "宋体")
+
+			if append:
+				p =doc.add_paragraph('')
+				docx_add_style_run(p, "", 12, False, "宋体")
+
 	except:
-		print("err content:", stime + msg.name + "：" + content)
+		print("err content:", "["+ msg.time +"]" + msg.name + "：" + msg.content)	
+
+
 
 def log_errmsg_at_name(msg, name):
 	""" 记录姓名找不到的错误日志文件 """
@@ -88,7 +128,7 @@ def log_run_time(filename):
 
 
 #解析QQ消息-->DB
-def parse_msg(db, fout, strlines):
+def parse_msg(db, fout, strlines, outype):
 	""" 从字符串列表中提取出逐条信息，格式化后，存入数据库 """
 
 	log_run_time(error_filename)
@@ -120,7 +160,7 @@ def parse_msg(db, fout, strlines):
 				continue
 
 			if msg.time !="":
-				output_important_msg(db, fout, msg)
+				output_important_msg(db, fout, outype, msg)
 				db.save_msg(msg)
 
 			msg = qqmsg_item.MsgItem(errname_filename)
@@ -132,7 +172,7 @@ def parse_msg(db, fout, strlines):
 				msg.add_content(str1)
 
 	#记录最后一条消息
-	output_important_msg(db, fout, msg)
+	output_important_msg(db, fout, outype, msg)
 	db.save_msg(msg)
 
 
@@ -144,25 +184,46 @@ def parse_msg(db, fout, strlines):
 #4、在之前记录中搜索该名字的最近一条记录，并写入在本条之前。如果没有找到，报一错误，并记录当前时间和内容
 #5、如果3、4有结果，先写入4的记录，再记录本条记录。否则只记录本条记录
 
+def file_extension(path):
+	return os.path.splitext(path)[1]  
+
 def qqmsg_extract(dbname, outputname, inputname):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
 	fin = open(inputname, 'r', encoding='utf8', errors='ignore')
-	fout = open(outputname, 'w')
-	try:
-		parse_msg(db, fout, fin.readlines())
 
+	outype = 0 # 0-stdout, 1-txt, 2-docx
+	outitle = "群记录"
+	file_ext = file_extension(outputname)
+	if file_ext == ".txt":
+		fout = open(outputname, 'w')
+		fout.write(outitle + "\n\n")
+		outype = 1
+	elif file_ext == ".docx":
+		fout = Document()
+		p = fout.add_paragraph("")
+		p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER  # CENTER居中对齐 LEFT左对齐 RIGHT右对齐
+		run = docx_add_style_run(p, outitle, 18, True, "宋体")
+		fout.add_paragraph("")	
+		outype = 2
+	else:
+		print("stdout msg!")
+
+	try:
+		parse_msg(db, fout, fin.readlines(), outype)
 	finally:
 		if fin:
 			fin.close()
-		if fout:
+		if file_ext == ".txt" and fout:
 			fout.close()
+		if file_ext == ".docx" and fout:
+			fout.save(outputname)
 
 def qqmsg_init():
 	""" 定位当前目录，并重新确定各配置和出错的文件路径，并读取配置文件 """
 	global filename_db
 	global error_filename
 	global errname_filename
-	path = sys.path[0]
+	path = os.getcwd() #sys.path[0]
 	filename_db      = path + "/" + filename_db
 	error_filename   = path + "/" + error_filename
 	errname_filename = path + "/" + errname_filename
@@ -171,6 +232,8 @@ def qqmsg_init():
 	global important_names
 	filename_ini  = path + "/" + "qmextract.ini"
 	section       = "qq_config"
+	print(path, filename_ini)
+
 	meini = qmextract_ini.Qqmsg_ini(filename_ini, section)
 	important_names = meini.get_names()
 	return meini

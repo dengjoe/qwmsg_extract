@@ -20,6 +20,7 @@ class Qqmsg_ini(object):
 		self._names = []
 		self._infile = ""
 		self._outdir = ""
+		self._outtype= ""
 
 		if os.path.exists(self.fname) == False:
 			self.__create_ini()
@@ -32,6 +33,7 @@ class Qqmsg_ini(object):
 
 				self._infile = self.cf.get(self.section, "inputfile")
 				self._outdir = self.cf.get(self.section, "outdir")
+				self._outtype = self.cf.get(self.section, "outype")
 			else:
 				self.__create_ini()	
 
@@ -41,6 +43,7 @@ class Qqmsg_ini(object):
 		self.cf.set(self.section, 'names', '') 
 		self.cf.set(self.section, 'inputfile', '') 
 		self.cf.set(self.section, 'outdir', '') 
+		self.cf.set(self.section, 'outype', '') 
 		self.cf.write(open(self.fname, "w", encoding='utf8'))
 
 		self.cf.read(self.fname, encoding='utf8')
@@ -61,6 +64,10 @@ class Qqmsg_ini(object):
 	@property
 	def outputdir(self):
 		return self._outdir
+
+	@property
+	def outputype(self):
+		return self._outtype
 
 	@outputdir.setter
 	def outputdir(self, dirname):
