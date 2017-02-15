@@ -53,7 +53,7 @@ def output_important_msg(db, fout, outype, msg):
 			# 是含有应答对象的内容，提取出对象的姓名
 			name = m.group(1).strip()[1:]
 
-			msg_last = db.get_last_one_by_name(name)
+			msg_last = db.get_last_msg_by_name(name)
 			if msg_last:
 				output_msg(fout, outype, msg_last)
 			else:
@@ -135,7 +135,7 @@ def parse_msg(db, fout, strlines, outype):
 
 	#读取最后一次写入的消息时间
 	skip_flag = 0
-	last_msg = db.get_last_one()
+	last_msg = db.get_last_msg()
 	if last_msg:
 		skip_flag = 1
 		old_time = last_msg.timestamp

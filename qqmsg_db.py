@@ -7,25 +7,33 @@ import qqmsg_item
 
 
 #db: id INTEGER PRIMARY KEY, name VARCHAR(20), uid VARCHAR(20), time VARCHAR(20), timestamp INTEGER, content TEXT
-msg_table_item_types = "id INTEGER PRIMARY KEY, name VARCHAR(20), uid VARCHAR(20), time VARCHAR(20), timestamp INTEGER, content TEXT"
-msg_table_items = "(id, name, uid, time, timestamp, content)"
+table_msg_item_types = "id INTEGER PRIMARY KEY, name VARCHAR(20), uid VARCHAR(20), time VARCHAR(20), timestamp INTEGER, content TEXT"
+table_msg_items = "(id, name, uid, time, timestamp, content)"
+
+table_nickname_item_types = "id INTEGER PRIMARY KEY, name VARCHAR(20) UNIQUE, nickname VARCHAR(20)"
+table_nickname_items = "(id, name, nickname)"
+
 
 class Qqmsg_db(object):
 	""" QQ消息的数据库 """
-	def __init__(self, dbname, msg_logname, table_name="qqmsg"):
+	def __init__(self, dbname, msg_logname, table_msg="qqmsg", table_nickname="nicknames"):
 		""" 初始化，默认消息表名为qqmsg """
-		self.msg_table_name = table_name
+		self.table_msg = table_msg
+		self.table_nickname = table_nickname
 		self.msg_logname = msg_logname
 
 		self.db = alp_sqldb.Alp_sqldb(dbname)
 
-		if self.db.table_is_exist(self.msg_table_name) == False:
-			self.db.table_create(self.msg_table_name, msg_table_item_types)
+		if self.db.table_is_exist(self.table_msg) == False:
+			self.db.table_create(self.table_msg, table_msg_item_types)
+
+		if self.db.table_is_exist(self.table_nickname) == False:
+			self.db.table_create(self.table_nickname, table_nickname_item_types)
 
 
-	def get_last_one_by_condition(self, condition):
+	def get_last_msg_by_condition(self, condition):
 		""" 读取数据库中最后一次符合条件的消息记录，并返回对象 """
-		m = self.db.find_one(self.msg_table_name, condition, "id desc")
+		m = self.db.find_one(self.table_msg, condition, "id desc")
 		if m:
 			msg = qqmsg_item.MsgItem(self.msg_logname)
 			msg.name = m[1]
@@ -37,20 +45,20 @@ class Qqmsg_db(object):
 		else:
 			return None	
 
-	def get_last_one(self):
+	def get_last_msg(self):
 		""" 读取数据库中最后一次消息记录并返回对象 """
-		return self.get_last_one_by_condition(None)
+		return self.get_last_msg_by_condition(None)
 
-	def get_last_one_by_name(self, name):
+	def get_last_msg_by_name(self, name):
 		""" 读取数据库中最后一次该name的消息记录并返回对象 """
 		cond = "name='" + name + "'"
-		return self.get_last_one_by_condition(cond)
+		return self.get_last_msg_by_condition(cond)
 
 
 	def save_msg(self, msg):
 		""" 保存一条消息到数据库 """
 		timestamp = '%d' %msg.timestamp
-		sql = "INSERT INTO " + self.msg_table_name + " " + msg_table_items + " Values(NULL, " \
+		sql = "INSERT INTO " + self.table_msg + " " + table_msg_items + " Values(NULL, " \
 			   + "'" + msg.name + "', " \
 			   + "'" + msg.uid  + "', " \
 			   + "'" + msg.time + "', " \
@@ -62,3 +70,9 @@ class Qqmsg_db(object):
 		except:
 			print("db.execute error:", sql)
 
+	def add_nickname(self, keyname, nickname):
+		pass
+
+	def get_keynames(self, nickname):
+		pass
+		
