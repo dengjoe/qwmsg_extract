@@ -21,6 +21,7 @@ class Qqmsg_ini(object):
 		self._infile = ""
 		self._outdir = ""
 		self._outtype= ""
+		self._nickfile = ""
 
 		if os.path.exists(self.fname) == False:
 			self.__create_ini()
@@ -34,6 +35,7 @@ class Qqmsg_ini(object):
 				self._infile = self.cf.get(self.section, "inputfile")
 				self._outdir = self.cf.get(self.section, "outdir")
 				self._outtype = self.cf.get(self.section, "outype")
+				self._nickfile = self.cf.get(self.section, "nickfile")
 			else:
 				self.__create_ini()	
 
@@ -44,6 +46,7 @@ class Qqmsg_ini(object):
 		self.cf.set(self.section, 'inputfile', '') 
 		self.cf.set(self.section, 'outdir', '') 
 		self.cf.set(self.section, 'outype', '') 
+		self.cf.set(self.section, 'nickfile', '') 
 		self.cf.write(open(self.fname, "w", encoding='utf8'))
 
 		self.cf.read(self.fname, encoding='utf8')
@@ -65,16 +68,25 @@ class Qqmsg_ini(object):
 	def outputdir(self):
 		return self._outdir
 
-	@property
-	def outputype(self):
-		return self._outtype
-
 	@outputdir.setter
 	def outputdir(self, dirname):
 		self._outdir = dirname
 		self.cf.set(self.section, "outdir", dirname)
 		self.cf.write(open(self.fname, "w", encoding='utf8'))
 
+	@property
+	def outputype(self):
+		return self._outtype
+
+	@property
+	def nickfile(self):
+		return self._nickfile
+
+	@nickfile.setter
+	def nickfile(self, filename):
+		self._nickfile = filename
+		self.cf.set(self.section, "nickfile", filename)
+		self.cf.write(open(self.fname, "w", encoding='utf8'))
 
 def test():
 	myini = Qqmsg_ini("./qmextract.ini", "wx_config")

@@ -71,8 +71,22 @@ class Qqmsg_db(object):
 			print("db.execute error:", sql)
 
 	def add_nickname(self, keyname, nickname):
-		pass
+		sql = "INSERT INTO " + self.table_nickname + " " + table_nickname_items + " Values(NULL, " \
+			   + "'" + keyname + "', " \
+			   + "'" + nickname  + "') "
+		try:
+			self.db.execute(sql)
+			self.db.commit()
+		except:
+			print("db.execute error:", sql)
+
 
 	def get_keynames(self, nickname):
-		pass
+		m = []
+		cond = "nickname='" + nickname + "'"
+		datas = self.db.find_all(self.table_nickname, cond)
+		if datas:
+			for mm in datas:
+				m.append(mm[1])
+		return m
 		
