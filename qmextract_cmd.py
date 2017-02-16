@@ -49,13 +49,16 @@ def output_important_msg(db, fout, outype, msg):
 	last_time = msg.time[0:10]
 
 	if msg.name in important_names:
-		m = re.match(r'(@\d{0,4}[\+\-\s]?[\w\d\_\-\*\^\.\,\~﹏\=\{\}、\"\'\[\]]{1,15}[\+\-\s]{0,3}\w{0,6})\s(.+)', msg.content)
+		m = re.match(r'(@\d{0,4}[\+\-\s]?[\w\d\_\-\*\^\.\,\~﹏\=\{\}\(\)、\!\"\'\[\]]{1,15}[\+\-\s]{0,3}\w{0,6})\s(.+)', msg.content)
 		if m:
 			# 是含有应答对象的内容，提取出对象的姓名
 			name = m.group(1).strip()[1:]
 			# 山长的消息另外单独处理
 			if msg.name == "山长 清一":
-				name = get_keyname(db, name)
+				keyname = get_keyname(db, name)
+				shortname = re.sub(r"\d{0,4}", "", keyname).strip()
+				msg.content = re.sub("@"+name, "@"+shortname, msg.content)
+				name = keyname
 
 			# 只记录2小时（7200秒）内的回复信息
 			msg_last = db.get_last_msg_by_name(name)
@@ -100,7 +103,7 @@ def output_msg_date(doc, outype, msg):
 
 
 def output_msg(doc, outype, msg, append=None):
-	iname = msg.name
+	iname = re.sub(r"\d{0,4}", "", msg.name).strip()
 	if iname.find("刘明慧") >= 0:
 		iname = "刘老师"
 
@@ -237,7 +240,7 @@ def qqmsg_extract(dbname, outputname, inputname):
 
 def qqmsg_save_nicknames(dbname, nickfile):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
-	pat = re.compile(r'([.\d\w\s\-\_\+]*)\<([.\d\w\s\-\_\+\*\^\.\,\~﹏\=\{\}、\"\'\[\]]*)')
+	pat = re.compile(r'([.\d\w\s\-\_\+]*)\<([.\d\w\s\-\_\+\*\^\.\,\~﹏\!\=\{\}\(\)、\"\'\[\]]*)')
 	with open(nickfile, 'r', encoding='utf8') as f:
 		for line in f.readlines():
 			m = pat.match(line)
