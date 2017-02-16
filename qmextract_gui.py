@@ -107,14 +107,8 @@ class WinInput(object):
 		self.txt.insert(0.0, qmextract_cmd.extract_result())
 
 	def run_nick(self):
-		pat = re.compile(r'([.\d\w\s]*)\<([.\d\w\s]*)')
-		with open(self._nickfile, 'r', encoding='utf8') as f:
-			for line in f.readlines():
-				m = pat.match(line)
-				if m:
-					pass
-				else:
-					print("error in nickname:", line)
+		qmextract_cmd.qqmsg_save_nicknames(qmextract_cmd.filename_db, self._nickfile)
+
 
 
 root = tk.Tk()

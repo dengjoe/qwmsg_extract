@@ -80,7 +80,6 @@ class Qqmsg_db(object):
 		except:
 			print("db.execute error:", sql)
 
-
 	def get_keynames(self, nickname):
 		m = []
 		cond = "nickname='" + nickname + "'"
@@ -89,4 +88,32 @@ class Qqmsg_db(object):
 			for mm in datas:
 				m.append(mm[1])
 		return m
-		
+
+	def clear_nickname(self):
+		sql = "DELETE FROM " + self.table_nickname
+		try:
+			self.db.execute(sql)
+			self.db.commit()
+		except:
+			print("db.execute error:", sql)
+
+	def stdout_nickname(self):
+		print(self.db.find_all(self.table_nickname))
+
+
+def test_nickname():
+	db = Qqmsg_db("./niname", "./errname.txt")
+	nicks = [('036胡超上海', '胡立'), ('060王昆明', 'Cindy'), \
+			('160吴芸上海', '芸'), ('146张三南京', '山人'), \
+			('067吴庆张家', '芸'), ('193韩北京', '猴爵'), ('060王昆明', 'Cindy')]
+	db.clear_nickname()
+	for m in nicks:
+		db.add_nickname(m[0], m[1])
+	db.stdout_nickname()
+
+	names = db.get_keynames("芸")
+	print("get keynames(芸):", names)
+
+
+if __name__=='__main__':
+	test_nickname()

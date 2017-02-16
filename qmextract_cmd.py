@@ -11,6 +11,7 @@ import sys
 import re
 import getopt
 import time
+import datetime
 
 import qqmsg_db
 import qqmsg_item
@@ -48,19 +49,35 @@ def output_important_msg(db, fout, outype, msg):
 	last_time = msg.time[0:10]
 
 	if msg.name in important_names:
-		m = re.match(r'(@\d{0,4}[\+\-\s]?\w{1,10}[\+\-\s]{0,3}\w{0,6})\s(.+)', msg.content)
+		m = re.match(r'(@\d{0,4}[\+\-\s]?[\w\d\_\-\*\^\.\,\~﹏\=\{\}、\"\'\[\]]{1,15}[\+\-\s]{0,3}\w{0,6})\s(.+)', msg.content)
 		if m:
 			# 是含有应答对象的内容，提取出对象的姓名
 			name = m.group(1).strip()[1:]
+			# 山长的消息另外单独处理
+			if msg.name == "山长 清一":
+				name = get_keyname(db, name)
 
+			# 只记录2小时（7200秒）内的回复信息
 			msg_last = db.get_last_msg_by_name(name)
-			if msg_last:
+			if msg_last and msg_time_diff(msg, msg_last) < 7200:
 				output_msg(fout, outype, msg_last)
 			else:
 				log_errmsg_at_name(msg, name)
 
 		output_msg(fout, outype, msg, "\n")
 		global_data.output_msg_count += 1
+
+def get_keyname(db, name):
+	names = db.get_keynames(name)
+	if names:
+		return names[0]
+	else:
+		return name
+		
+def msg_time_diff(msg, msg_last):
+	tmlast = datetime.datetime.strptime(msg_last.time, "%Y-%m-%d %H:%M:%S")
+	tmnow = datetime.datetime.strptime(msg.time, "%Y-%m-%d %H:%M:%S")
+	return (tmnow-tmlast).seconds
 
 def docx_add_style_run(p, text, fontsize, isbold, fontname=None):
 		run = p.add_run(text)
@@ -179,7 +196,7 @@ def parse_msg(db, fout, strlines, outype):
 
 #0、打开数据库，获取最后一条信息的时间和内容，对比QQ记录，找到对应时间的下一条记录，从这里开始
 #1、先按行开头的日期时间，来确定一条记录。并提取本行后面的昵称\时间，记录到自己的类，保存到数据库。
-#2、如果含有：刘明慧(704664790),  山长 清一(1920602454)，则一定要记录并执行3、4
+#2、如果含有关注名的，则一定要记录并执行3、4
 #3、搜索后续内容中是否有'\@\w+\s'，有则提取出该名字
 #4、在之前记录中搜索该名字的最近一条记录，并写入在本条之前。如果没有找到，报一错误，并记录当前时间和内容
 #5、如果3、4有结果，先写入4的记录，再记录本条记录。否则只记录本条记录
@@ -217,6 +234,20 @@ def qqmsg_extract(dbname, outputname, inputname):
 			fout.close()
 		if file_ext == ".docx" and fout:
 			fout.save(outputname)
+
+def qqmsg_save_nicknames(dbname, nickfile):
+	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
+	pat = re.compile(r'([.\d\w\s\-\_\+]*)\<([.\d\w\s\-\_\+\*\^\.\,\~﹏\=\{\}、\"\'\[\]]*)')
+	with open(nickfile, 'r', encoding='utf8') as f:
+		for line in f.readlines():
+			m = pat.match(line)
+			if m:
+				#nickname = m.group(2)[:len(m.group(2))-1]
+				db.add_nickname(m.group(1), m.group(2))
+			else:
+				print("error in nickname:", line)
+	#db.stdout_nickname()
+
 
 def qqmsg_init():
 	""" 定位当前目录，并重新确定各配置和出错的文件路径，并读取配置文件 """
