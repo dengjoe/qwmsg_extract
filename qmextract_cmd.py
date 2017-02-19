@@ -253,6 +253,10 @@ def qqmsg_save_nicknames(dbname, nickfile):
 				print("error in nickname:", line)
 	#db.stdout_nickname()
 
+def qqmsg_clear_nicknames(dbname):
+	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
+	db.clear_nickname()
+
 
 def qqmsg_init():
 	""" 定位当前目录，并重新确定各配置和出错的文件路径，并读取配置文件 """

@@ -49,6 +49,9 @@ class WinInput(object):
 		dbtn = tk.Button(frame, text='...', command=self.find_nickfile)
 		dbtn.grid(row=2, column=2)
 
+		dbtn = tk.Button(frame, text='昵称清空', command=self.clear_nick)
+		dbtn.grid(row=3, column=0, sticky="W"+"E")
+
 		dbtn = tk.Button(frame, text='QQ提取', command=self.run_qmex)
 		dbtn.grid(row=3, column=1, sticky="W"+"E")
 
@@ -109,6 +112,8 @@ class WinInput(object):
 	def run_nick(self):
 		qmextract_cmd.qqmsg_save_nicknames(qmextract_cmd.filename_db, self._nickfile)
 
+	def clear_nick(self):
+		qmextract_cmd.qqmsg_clear_nicknames(qmextract_cmd.filename_db)
 
 
 root = tk.Tk()
