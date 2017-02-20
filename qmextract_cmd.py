@@ -248,7 +248,7 @@ def qqmsg_save_nicknames(dbname, nickfile):
 			m = pat.match(line)
 			if m:
 				#nickname = m.group(2)[:len(m.group(2))-1]
-				db.add_nickname(m.group(1), m.group(2))
+				db.add_nickname(m.group(1).strip(), m.group(2).strip())
 			else:
 				print("error in nickname:", line)
 	#db.stdout_nickname()
