@@ -111,12 +111,12 @@ class WinInput(object):
 
 	def run_nick(self):
 		qmextract_cmd.qqmsg_save_nicknames(qmextract_cmd.filename_db, self._nickfile)
-		self.txt.insert(0.0, "Finish save nicknames.\n")
+		self.txt.insert(0.0, " --------------- \nFinish save nicknames.\n")
 
 
 	def clear_nick(self):
 		qmextract_cmd.qqmsg_clear_nicknames(qmextract_cmd.filename_db)
-		self.txt.insert(0.0, "Finish clear nicknames.\n")
+		self.txt.insert(0.0, " --------------- \nFinish clear nicknames.\n")
 
 
 root = tk.Tk()
