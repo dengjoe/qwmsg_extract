@@ -27,7 +27,7 @@ class MsgItem(object):
 		self.logname = logname
 
 	def set_name(self, name):
-		#分解name，匹配：昵称和QQ号(或邮箱)
+		"""分解name，匹配：昵称和QQ号(或邮箱)"""
 		m = re.match(r'([\d\w\+\s\!\-\~\@]{0,20})[\(\<]([\w\d\~\.\@\-]+[\>\)]$)', name)
 		# m = re.match(r'(\d{0,4}[\+\s\!\-]{0,2}\w{1,10}[\+\s\@\-]{0,3}\w{0,6}[\+\s\@]{0,3}[\w\d]{0,3})[\(\<](.+)', name)
 		if m:
@@ -40,20 +40,20 @@ class MsgItem(object):
 			# print(localstring)
 
 	def set_time(self, ti):
+		"""设置时间，并转换字符串为时间戳"""
 		self.time = ti
-		#转换为时间戳:
 		timeArray = time.strptime(ti, "%Y-%m-%d %H:%M:%S")
 		self.timestamp = int(time.mktime(timeArray))
 		# print(ti, " :", timeArray, ":", self.timestamp)
 
 	def add_content(self, msg):
-		#换行，并过滤掉表情字符串
+		"""换行，并过滤掉表情字符串"""
 		if self.content != "":
 			self.content += "\n"
 		self.content += re.sub(r'\[表情\]', "", msg)
 
 	def output_std(self):
-		print(self.name, self.uid, "\t", self.time, "(",  self.timestamp,"):\n", self.content)
+		print("%s %s \t %s(%d):\n %s" % (self.name, self.uid, self.time, self.timestamp, self.content))
 
 
 
