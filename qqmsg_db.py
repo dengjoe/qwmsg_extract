@@ -64,6 +64,7 @@ class Qqmsg_db(object):
 			   + "'" + msg.time + "', " \
 			   + timestamp + ", " \
 			   + "'" + msg.content + "') " 
+		# print(sql)
 		try:
 			self.db.execute(sql)
 			self.db.commit()
@@ -103,9 +104,9 @@ class Qqmsg_db(object):
 
 def test_nickname():
 	db = Qqmsg_db("./niname", "./errname.txt")
-	nicks = [('036胡超上海', '胡立'), ('060王昆明', 'Cindy'), \
-			('160吴芸上海', '芸'), ('146张三南京', '山人'), \
-			('067吴庆张家', '芸'), ('193韩北京', '猴爵'), ('060王昆明', 'Cindy')]
+	nicks = [('036胡超上海', '胡立'), ('060王昆明', 'Cindy'), ('1363Z唐燕城香港', '橙子'), \
+			('160T吴芸上海', '芸'), ('146张三南京', '山人'), \
+			('Q067吴庆张家', '芸'), ('193韩北京', '猴爵'), ('060王昆明', 'Cindy')]
 	db.clear_nickname()
 	for m in nicks:
 		db.add_nickname(m[0], m[1])
@@ -113,6 +114,8 @@ def test_nickname():
 
 	names = db.get_keynames("芸")
 	print("get keynames(芸):", names)
+	names = db.get_keynames("橙子")
+	print("get keynames(橙子):", names)
 
 
 if __name__=='__main__':
