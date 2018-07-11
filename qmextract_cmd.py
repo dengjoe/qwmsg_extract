@@ -249,7 +249,7 @@ def qqmsg_extract(dbname, outputname, inputname):
 
 def qqmsg_save_nicknames(dbname, nickfile):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
-	pat = re.compile(r'([.\d\w\s\-\—\_\+\，]*)\<([.\d\w\s\-\—\_\+\*\^\.\,\~﹏！\!\=\{\}\(\)、\"\'\[\]]*)')
+	pat = re.compile(r'([.\d\w\s\-\—\_\+\，·]*)\<([.\d\w\s\-\—\_\+\*\^\.\,\~﹏！\!\=\{\}\(\)、\"\'\[\]（）]*)')
 	with open(nickfile, 'r', encoding='utf8') as f:
 		for line in f.readlines():
 			m = pat.match(line)
