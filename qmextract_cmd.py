@@ -15,6 +15,7 @@ import re
 import getopt
 import time
 import datetime
+import json
 
 import qqmsg_db
 import qqmsg_item
@@ -244,7 +245,7 @@ def qqmsg_extract(dbname, outputname, inputname):
 		if file_ext == ".docx" and fout:
 			fout.save(outputname)
 
-def qqmsg_save_nicknames(dbname, nickfile):
+def qqmsg_save_nicknames_txt(dbname, nickfile):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
 	pat = re.compile(r'([.\d\w\s\-\—\_\+]*)\<([.\d\w\s\-\—\_\+\*\^\.\,\~﹏！\!\=\{\}\(\)、\"\'\[\]]*)')
 	with open(nickfile, 'r', encoding='utf8') as f:
@@ -256,6 +257,15 @@ def qqmsg_save_nicknames(dbname, nickfile):
 			else:
 				print("error in nickname:", line)
 	#db.stdout_nickname()
+
+def qqmsg_save_nicknames_json(dbname, nickfile):
+	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
+	with open(nickfile, 'r', encoding='utf8') as pf:
+		items = json.load(pf)
+		for item in items:
+			if item["card"]=="":
+				item["card"] = item["nick"]
+			db.add_nickname(item["card"], item["nick"])
 
 def qqmsg_clear_nicknames(dbname):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)

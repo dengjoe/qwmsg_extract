@@ -6,6 +6,7 @@ import tkinter.filedialog as filedialog
 import sys
 import datetime
 import re
+import os.path
 
 import global_data
 import qmextract_ini
@@ -110,7 +111,12 @@ class WinInput(object):
 		self.txt.insert(0.0, qmextract_cmd.extract_result())
 
 	def run_nick(self):
-		qmextract_cmd.qqmsg_save_nicknames(qmextract_cmd.filename_db, self._nickfile)
+		ext = os.path.splitext(self._nickfile)[1]
+		print(ext)
+		if ext==".json":
+			qmextract_cmd.qqmsg_save_nicknames_json(qmextract_cmd.filename_db, self._nickfile)
+		elif ext==".txt":
+			qmextract_cmd.qqmsg_save_nicknames_txt(qmextract_cmd.filename_db, self._nickfile)
 		self.txt.insert(0.0, " --------------- \nFinish save nicknames.\n")
 
 
