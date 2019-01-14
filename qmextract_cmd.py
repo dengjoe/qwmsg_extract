@@ -58,7 +58,7 @@ def output_important_msg(db, fout, outype, msg):
 		if m:
 			# 是含有应答对象的内容，提取出对象的姓名
 			name = m.group(1).strip()[1:]
-			# 山长的消息另外单独处理
+			# 山长的消息另外单独处理，因为山长qq比较老，记录中没法显示群昵称
 			if msg.name == "山长 清一":
 				keyname = get_keyname(db, name)
 				shortname = re.sub(r"\d{0,4}", "", keyname).strip()
@@ -250,7 +250,7 @@ def qqmsg_extract(dbname, outputname, inputname):
 
 def qqmsg_save_nicknames_txt(dbname, nickfile):
 	db = qqmsg_db.Qqmsg_db(dbname, errname_filename)
-	pat = re.compile(r'([.\d\w\s\-\—\_\+\，·]*)\<([.\d\w\s\-\—\_\+\*\^\.\,\~﹏！\!\=\{\}\(\)、\"\'\[\]（）]*)')
+	pat = re.compile(r'([.\d\w\s\-\—\_\+\，·]*)\<([.\d\w\s\-\—\_\+\*\^\.\,\/\~﹏！\!\=\{\}\(\)、\"\'\[\]（）]*)')
 	with open(nickfile, 'r', encoding='utf8') as f:
 		for line in f.readlines():
 			m = pat.match(line)
